@@ -1,6 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react'
 import Toast from 'react-native-easy-toast'
-import { StyleSheet, Text, View } from 'react-native'
+import { StyleSheet, View } from 'react-native'
 import { Button } from 'react-native-elements'
 import { useNavigation } from '@react-navigation/native'
 
@@ -16,11 +16,13 @@ export default function UserLogged() {
     const [loading, setLoading] = useState(false)
     const [loadingText, setLoadingText] = useState("")
     const [user, setUser] = useState(null)
+    const [reloadUser, setReloadUser] = useState(false)
 
     useEffect(() => {
         const currentUser = getCurrentUser()
         setUser(currentUser)
-    }, [])
+        setReloadUser(false)
+    }, [reloadUser])
 
     return (
         <View style={styles.viewUserInfo}>
@@ -35,6 +37,7 @@ export default function UserLogged() {
                         <AccountOptions 
                             user={user} 
                             toastRef={toastRef}
+                            setReloadUser={setReloadUser}
                         />
                     </View>
                 )
