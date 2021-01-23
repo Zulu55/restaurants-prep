@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react'
+import React from 'react'
+import { LogBox } from 'react-native'
 import Navigation from './app/navigations/Navigation'
-import { closeSession } from './app/utils/actions'
+
+LogBox.ignoreAllLogs()
 
 export default function App() {
-  //closeSession()
   
   return (
     <Navigation/>

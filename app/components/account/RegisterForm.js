@@ -76,6 +76,7 @@ export default function RegisterForm() {
                 onChange={(e) => onChange(e, "email")}
                 defaultValue={formData.email}
                 errorMessage={errorEmail}
+                keyboardType="email-address"
                 rightIcon={
                     <Icon
                         type="material-community"
