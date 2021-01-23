@@ -1,9 +1,9 @@
 import React, { useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { Input, Button, Icon } from 'react-native-elements'
-import { result, size } from 'lodash'
+import { size } from 'lodash'
 
-import { updateProfile, reauthenticate, updateEmail } from '../../utils/actions'
+import { reauthenticate, updateEmail } from '../../utils/actions'
 import { validateEmail } from '../../utils/utils'
 
 export default function ChangeEmailForm(props) {
