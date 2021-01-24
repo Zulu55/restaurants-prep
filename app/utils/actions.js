@@ -118,3 +118,14 @@ export const updatePassword = async (newPassword) => {
 
     return result
 }
+
+export const addRecordWithOutId = async (collection, data) => {
+    const result = { error: "", statusResponse: true }
+    await db
+        .collection(collection)
+        .add(data)
+        .then(() => result.statusResponse = true)
+        .catch((error) => result.error = error)
+
+    return result
+}

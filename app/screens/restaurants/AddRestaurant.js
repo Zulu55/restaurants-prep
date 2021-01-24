@@ -19,7 +19,7 @@ export default function AddRestaurant(props) {
                 setLoading={setLoading} 
                 navigation={navigation}
             />
-            <Loading isVisible={loading} text="Creando restaurante..."/>
+            <Loading isVisible={loading} text="Creando Restaurante..."/>
             <Toast ref={toastRef} position="center" opacity={0.9}/>
         </KeyboardAwareScrollView>
     )
