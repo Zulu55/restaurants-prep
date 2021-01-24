@@ -69,8 +69,8 @@ export default function AddRestaurantForm(props) {
             isValid = false
         }
 
-        if (isEmpty(formData.phone)) {
-            setErrorPhone("Debes ingresar un teléfono del restaurante.")
+        if (size(formData.phone) !== 10) {
+            setErrorPhone("Debes ingresar un teléfono del restaurante de 10 dígitos.")
             isValid = false
         }
 
