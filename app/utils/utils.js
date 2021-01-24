@@ -13,7 +13,7 @@ export const loadImageFromGallery = async (array) => {
     
     if (resultPersissions.status === "denied") {
       Alert.alert("Debes darle permiso a las imágenes")
-      return
+      return response
     }
   
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -22,7 +22,7 @@ export const loadImageFromGallery = async (array) => {
     })
   
     if (result.cancelled) {
-      return
+      return response
     }
   
     response = { status: true, image: result.uri }
@@ -33,6 +33,4 @@ export const fileToBlob = async (path) => {
     const file = await fetch(path)
     const blob = await file.blob()
     return blob
-}
-  
-  
+} 
