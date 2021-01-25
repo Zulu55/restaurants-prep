@@ -3,6 +3,8 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 
 import { fileToBlob } from './utils'
+import { map } from 'lodash'
+import { getCameraRollPermissionsAsync } from 'expo-image-picker'
 
 const db = firebase.firestore(firebaseApp)
 
