@@ -131,3 +131,21 @@ export const addRecordWithOutId = async (collection, data) => {
 
     return result
 }
+
+export const getRecordById = async (collection, id) => {
+    let response = { statusResponse: false, document: null, error: null };
+  
+    try {
+        const result = await db.collection(collection).doc(id).get()
+        const document = result.data()
+        document.id = result.id
+        response.document = document
+        response.statusResponse = true
+    } catch (error) {
+        console.log(error)
+        response.error = error
+    }
+  
+    return response;
+}
+  

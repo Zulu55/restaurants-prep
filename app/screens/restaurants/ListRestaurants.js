@@ -6,12 +6,14 @@ import {
     FlatList,
     ActivityIndicator,
     TouchableOpacity,
-} from "react-native"
-import { Image } from "react-native-elements";
-import { size } from "lodash";
+} from 'react-native'
+import { Image } from 'react-native-elements'
+import { size } from 'lodash'
+
+import { formatPhone } from '../../utils/utils'
   
 export default function ListRestaurants(props) {
-    const { restaurants, navigation } = props
+    const { restaurants, navigation, handleLoadMore } = props
 
     return (
         <View>
@@ -21,6 +23,8 @@ export default function ListRestaurants(props) {
                     <Restaurant restaurant={restaurant} navigation={navigation} />
                 )}
                 keyExtractor={(item, index) => index.toString()}
+                onEndReachedThreshold={0.5}
+                onEndReached={handleLoadMore}
             />
         </View>
     )
@@ -31,8 +35,12 @@ function Restaurant(props) {
     const { id, images, name, address, description, phone } = restaurant.item;
     const imageRestaurant = images ? images[0] : null
   
+    const goRestaurant = () => {
+        navigation.navigate("restaurant", { id, name })
+    }
+
     return (
-        <TouchableOpacity>
+        <TouchableOpacity onPress={() => goRestaurant()}>
             <View style={styles.viewRestaurant}>
                 <View style={styles.viewRestaurantImage}>
                     <Image
@@ -49,7 +57,7 @@ function Restaurant(props) {
                 <View>
                     <Text style={styles.restaurantName}>{name}</Text>
                     <Text style={styles.restaurantAddress}>{address}</Text>
-                    <Text style={styles.restaurantAddress}>{phone}</Text>
+                    <Text style={styles.restaurantAddress}>{formatPhone(phone)}</Text>
                     <Text style={styles.restaurantDescription}>
                         {
                             size(description) > 60 

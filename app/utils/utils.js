@@ -58,3 +58,7 @@ export const fileToBlob = async (path) => {
   const blob = await file.blob()
   return blob
 } 
+
+export const formatPhone = (phone) => {
+  return `+${phone.substr(0, 2)} ${phone.substr(2, 3)} ${phone.substr(5, 3)} ${phone.substr(8, 4)}`
+}

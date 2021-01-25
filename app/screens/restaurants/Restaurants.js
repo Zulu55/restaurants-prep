@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react'
 import { StyleSheet, Text, View } from 'react-native'
 import { Icon } from 'react-native-elements'
 import { useFocusEffect } from "@react-navigation/native"
+import { size } from 'lodash'
 
 import Loading from '../../components/Loading'
 import ListRestaurants from './ListRestaurants'
@@ -10,7 +11,6 @@ import { getCurrentUser } from '../../utils/actions'
 import { firebaseApp } from "../../utils/firebase"
 import firebase from "firebase/app"
 import "firebase/firestore"
-import { size } from 'lodash'
 
 const db = firebase.firestore(firebaseApp)
 
@@ -20,7 +20,6 @@ export default function Restaurants(props) {
 
     const [user, setUser] = useState(null)
     const [restaurants, setRestaurants] = useState([]);
-    const [totalRestaurants, setTotalRestaurants] = useState(0);
     const [startRestaurant, setStartRestaurant] = useState(null);
     const [loading, setLoading] = useState(false)
 
@@ -35,12 +34,6 @@ export default function Restaurants(props) {
             setLoading(true)
             const currentUser = getCurrentUser() 
             currentUser ? setUser(true) : setUser(false)
-
-            db.collection("restaurants")
-                .get()
-                .then((snap) => {
-                    setTotalRestaurants(snap.size);
-                })
 
             const resultRestaurants = [];
             db.collection("restaurants")
@@ -60,6 +53,38 @@ export default function Restaurants(props) {
             setLoading(false)
         }, [])
     )
+
+    const handleLoadMore = () => {
+        if (!startRestaurant) {
+            return
+        }
+
+        const resultRestaurants = []
+        setLoading(true);
+
+        db.collection("restaurants")
+            .orderBy("createAt", "desc")
+            .startAfter(startRestaurant.data().createAt)
+            .limit(limitRestaurants)
+            .get()
+            .then((response) => {
+                if (response.docs.length > 0) {
+                    setStartRestaurant(response.docs[response.docs.length - 1])
+                } else {
+                    setStartRestaurant(null)
+                }
+
+                response.forEach((doc) => {
+                    const restaurant = doc.data()
+                    restaurant.id = doc.id
+                    resultRestaurants.push(restaurant)
+                });
+
+                setRestaurants([...restaurants, ...resultRestaurants])
+            })
+
+        setLoading(false)
+    }
         
     if (user === null) {
         return <Loading isVisible={true} text="Cargando..."/>
@@ -72,6 +97,7 @@ export default function Restaurants(props) {
                     <ListRestaurants
                         restaurants={restaurants}
                         navigation={navigation}
+                        handleLoadMore={handleLoadMore}
                     />
                 ) : (
                     <View style={styles.notFoundView}>
