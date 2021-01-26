@@ -179,3 +179,42 @@ export const getRestaurantReviews = async(id) => {
   
     return response;
 }
+
+export const getIsFavorite = async(idRestaurant) => {
+    let response = { statusResponse: false, error: null, isFavorite: false };
+  
+    try {
+        const result = await db.collection("favorites")
+            .where("idRestaurant", "==", idRestaurant)
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()
+        response.isFavorite = result.docs.length > 0
+        response.statusResponse = true
+        
+    } catch (error) {
+        response.error = error
+    }
+  
+    return response;
+}
+
+export const removeFromFavorite = async(idRestaurant) => {
+    let response = { statusResponse: false, error: null };
+  
+    try {
+        const result = await db.collection("favorites")
+            .where("idRestaurant", "==", idRestaurant)
+            .where("idUser", "==", getCurrentUser().uid)
+            .get()
+        result.forEach(async(doc) => {
+            const favoriteId = doc.id
+            await db.collection("favorites").doc(favoriteId).delete()
+        })
+        response.statusResponse = true
+
+    } catch (error) {
+        response.error = error
+    }
+  
+    return response;
+}

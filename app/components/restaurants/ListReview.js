@@ -21,7 +21,6 @@ export default function ListReviews(props) {
     useEffect(() => {
         (async() => {
             const response = await getRestaurantReviews(idRestaurant)
-            console.log(response)
             if (response.statusResponse) {
                 setReviews(response.reviews)
             }
