@@ -3,8 +3,6 @@ import * as firebase from 'firebase'
 import 'firebase/firestore'
 
 import { fileToBlob } from './utils'
-import { map } from 'lodash'
-import { getCameraRollPermissionsAsync } from 'expo-image-picker'
 
 const db = firebase.firestore(firebaseApp)
 
@@ -142,10 +140,42 @@ export const getRecordById = async (collection, id) => {
         response.document = document
         response.statusResponse = true
     } catch (error) {
-        console.log(error)
         response.error = error
     }
   
     return response;
 }
   
+
+export const updateRecord = async (collection, id, data) => {
+    let response = { statusResponse: false, error: null };
+  
+    try {
+        await db.collection(collection).doc(id).update(data)
+        response.statusResponse = true
+    } catch (error) {
+        response.error = error
+    }
+  
+    return response;
+}
+
+export const getRestaurantReviews = async(id) => {
+    let response = { statusResponse: false, error: null, reviews: [] };
+  
+    try {
+        const result = await db.collection("reviews")
+            .where("idRestaurant", "==", id)
+            .get()
+        result.forEach(doc => {
+            const review = doc.data()
+            review.id = doc.id
+            response.reviews.push(review)
+        })    
+        response.statusResponse = true
+    } catch (error) {
+        response.error = error
+    }
+  
+    return response;
+}

@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Alert, StyleSheet, Text, View, ScrollView, Dimensions } from 'react-native'
 import { Rating, ListItem, Icon } from 'react-native-elements'
 import { map } from 'lodash'
+import { useFocusEffect } from '@react-navigation/native'
 
 import Loading from '../../components/Loading'
 import Map from '../../components/Map'
 import CarouselImages from '../../components/CarouselImages'
+import ListReviews from '../../components/restaurants/ListReview'
 import { getRecordById } from '../../utils/actions'
 import { formatPhone } from '../../utils/utils'
 
@@ -17,22 +19,22 @@ export default function Restaurant(props) {
 
     const [restaurant, setRestaurant] = useState(null)
     const [activeSlide, setActiveSlide] = useState(0)
-    const [rating, setRating] = useState(0)
 
     navigation.setOptions({ title: name })
 
-    useEffect(() => {
-        (async () => {
-            const response = await getRecordById("restaurants", id)
-            console.log(response)
-            if (response.statusResponse) {
-                setRestaurant(response.document)
-            } else {
-                setRestaurant({})
-                Alert.alert("Ocurrio un problema cargando el restautante, intente más tarde.")
-            }
-        })()
-    }, [])
+    useFocusEffect(
+        useCallback(() => {
+            (async () => {
+                const response = await getRecordById("restaurants", id)
+                if (response.statusResponse) {
+                    setRestaurant(response.document)
+                } else {
+                    setRestaurant({})
+                    Alert.alert("Ocurrio un problema cargando el restautante, intente más tarde.")
+                }
+            })()
+        }, [])
+    )
 
     if(!restaurant) return <Loading isVisble={true} text="Cargando..."/>
 
@@ -55,6 +57,10 @@ export default function Restaurant(props) {
                 location={restaurant.location}
                 address={restaurant.address}
                 phone={restaurant.phone}
+            />
+            <ListReviews
+                navigation={navigation}
+                idRestaurant={restaurant.id}
             />
         </ScrollView>
     )

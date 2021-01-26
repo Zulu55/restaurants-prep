@@ -5,7 +5,7 @@ import { useFocusEffect } from "@react-navigation/native"
 import { size } from 'lodash'
 
 import Loading from '../../components/Loading'
-import ListRestaurants from './ListRestaurants'
+import ListRestaurants from '../../components/restaurants/ListRestaurants'
 import { getCurrentUser } from '../../utils/actions'
 
 import { firebaseApp } from "../../utils/firebase"
