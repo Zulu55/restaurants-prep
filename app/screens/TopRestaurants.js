@@ -14,8 +14,6 @@ export default function TopRestaurants(props) {
     const { navigation } = props
     const [restaurants, setRestaurants] = useState([])
 
-    console.log(restaurants)
-
     useFocusEffect (
         useCallback(() => {
             db.collection("restaurants")
