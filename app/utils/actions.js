@@ -218,3 +218,19 @@ export const removeFromFavorite = async(idRestaurant) => {
   
     return response;
 }
+
+export const getTopRestaurants = () => {
+    db.collection("restaurants")
+    .orderBy("rating", "desc")
+    .limit(5)
+    .get()
+    .then((response) => {
+        const restaurantArray = []
+        response.forEach((doc) => {
+            const data = doc.data()
+            data.id = doc.id
+            restaurantArray.push(data)
+        })
+        return restaurantArray
+    })
+} 
