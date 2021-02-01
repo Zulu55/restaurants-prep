@@ -11,7 +11,7 @@ import Map from '../../components/Map'
 import CarouselImages from '../../components/CarouselImages'
 import ListReviews from '../../components/restaurants/ListReview'
 import { addRecordWithOutId, getCurrentUser, getIsFavorite, getRecordById, removeFromFavorite } from '../../utils/actions'
-import { formatPhone } from '../../utils/utils'
+import { formatPhone, callNumber, sendWhatsApp, sendEmail } from '../../utils/utils'
 
 const screeenWidth = Dimensions.get("window").width
 
@@ -26,11 +26,13 @@ export default function Restaurant(props) {
     const [userLogged, setUserLogged] = useState(false)
     const [loading, setLoading] = useState(false)
     const [loadingText, setLoadingText] = useState(null)
+    const [currentUser, setcurrentUser] = useState(null)
 
     navigation.setOptions({ title: name })
 
     firebase.auth().onAuthStateChanged((user) => {
         user ? setUserLogged(true) : setUserLogged(false)
+        setcurrentUser(user)
     })
     
     useFocusEffect(
@@ -123,6 +125,8 @@ export default function Restaurant(props) {
                 location={restaurant.location}
                 address={restaurant.address}
                 phone={restaurant.phone}
+                email="jzuluaga55@gmail.com"
+                currentUser={currentUser}
             />
             <ListReviews
                 navigation={navigation}
@@ -154,22 +158,49 @@ function TitleRestaurant(props) {
 }
 
 function RestaurantInfo(props) {
-    const { location, name, address, phone } = props
+    const { location, name, address, phone, email, currentUser } = props
     
     const listInfo = [
         {
             text: address,
             iconName: "map-marker",
+            type: "address"
         },
         {
             text: formatPhone(phone),
             iconName: "phone",
+            iconRight: "whatsapp",
+            iconRigthColor: "#25D366",
+            actionLeft: "callPhone",
+            actionRight: "sendWhatsApp",
+            type: "phone"
         },
         {
-            text: "jzuluaga55@gmail.com",
+            text: email,
             iconName: "at",
+            type: "email"
         }
     ]
+
+    const actionLeft = (type) => {
+        if (type === "phone") {
+            callNumber(phone)
+        } else if (type === "email") {
+            if (currentUser) {
+                sendEmail(email, "Interesado", `Soy ${getCurrentUser().displayName}, estoy interesado en...`)
+            } else {
+                sendEmail(email, "Interesado", `Estoy interesado en...`)
+            }   
+        }
+    }
+
+    const actionRight = () => {
+        if (currentUser) {
+            sendWhatsApp(phone, `Soy ${getCurrentUser().displayName}, estoy interesado en...`)
+        } else {
+            sendWhatsApp(phone, `Estoy interesado en...`)
+        }   
+    }
 
     return (
         <View style={styles.viewRestaurantInfo}>
@@ -191,10 +222,22 @@ function RestaurantInfo(props) {
                             type="material-community"
                             name={item.iconName}
                             color="#442484"
+                            onPress={() => actionLeft(item.type)}
                         />
                         <ListItem.Content>
                             <ListItem.Title>{item.text}</ListItem.Title>
                         </ListItem.Content>
+
+                        {
+                            item.iconRight && (
+                                <Icon
+                                    type="material-community"
+                                    name={item.iconRight}
+                                    color={item.iconRigthColor}
+                                    onPress={actionRight}
+                                />
+                            )
+                        }
                     </ListItem>
                 ))
             }
