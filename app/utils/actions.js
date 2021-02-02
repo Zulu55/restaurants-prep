@@ -56,6 +56,17 @@ export const loginWithEmailAndPassword = async (email, password) => {
     return result
 }
 
+export const sendEmailResetPassword = async (email) => {
+    const result = { statusResponse: false, error: null }
+    try {
+        await firebase.auth().sendPasswordResetEmail(email)
+        result.statusResponse = true
+    } catch(error) {
+        result.error = error
+    }
+    return result
+}
+
 export const uploadImage = async (image, path, name) => {
     const result = { statusResponse: false, error: null, url: null }
     const ref = firebase.storage().ref(path).child(name)
