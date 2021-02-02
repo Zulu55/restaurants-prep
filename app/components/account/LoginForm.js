@@ -1,8 +1,10 @@
 import React, { useState } from 'react'
-import { StyleSheet, View } from 'react-native'
+import { StyleSheet, View, Platform, Alert } from 'react-native'
 import { Input, Icon, Button } from 'react-native-elements'
 import { size } from 'lodash'
 import { useNavigation } from '@react-navigation/native'
+import * as GoogleSignIn from 'expo-google-sign-in'
+import * as firebase from 'firebase'
 
 import { validateEmail } from '../../utils/utils'
 import { loginWithEmailAndPassword } from '../../utils/actions'
@@ -56,6 +58,69 @@ export default function LoginForm() {
         setFormData({ ...formData, [type] : e.nativeEvent.text })
     }
 
+    async function googleSignInAsync() {
+        try {
+            await GoogleSignIn.initAsync()
+            if (Platform.OS === "android") {
+                await GoogleSignIn.askForPlayServicesAsync()
+            }
+            const { type, user } = await GoogleSignIn.signInAsync()
+            if (type === "success") {
+                onSignIn(user)
+                setLoading(false)
+                return true
+            } else {
+                setLoading(false)
+                Alert.alert(JSON.stringify(result))
+                return { cancelled: true }
+            }
+        } catch (error) {
+            setLoading(false)
+            alert(error.message)
+            return { error: true }
+        }
+    }
+
+    function onSignIn(googleUser) {
+        const unsubscribe = firebase
+            .auth()
+            .onAuthStateChanged(function (firebaseUser) {
+                unsubscribe()
+                if (!isUserEqual(googleUser, firebaseUser)) {
+                    const credential = firebase.auth.GoogleAuthProvider.credential(
+                        googleUser.auth.idToken,
+                        googleUser.auth.accessToken
+                    )
+                    setLoading(true);
+                    firebase
+                        .auth()
+                        .signInWithCredential(credential)
+                        .then(() => {
+                            setLoading(false)
+                        })
+                        .catch(function (error) {
+                            setLoading(false)
+                            Alert.alert(error.message)
+                        })
+                } else {
+                    Alert.alert("Usuario ya está logueado")
+                }
+            });
+    }
+
+    function isUserEqual(googleUser, firebaseUser) {
+        if (firebaseUser) {
+            let providerData = firebaseUser.providerData
+            for (let i = 0; i < providerData.length; i++) {
+                if (providerData[i].providerId === firebase.auth.GoogleAuthProvider.PROVIDER_ID &&
+                    providerData[i].uid === googleUser.getBasicProfile().getId()) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
     return (
         <View style={styles.formContainer}>
             <Input
@@ -90,12 +155,29 @@ export default function LoginForm() {
                     />
                 }
             />
-            <Button
-                title="Iniciar Sesión"
-                containerStyle={styles.btnContainerRegister}
-                buttonStyle={styles.btnRegister}
-                onPress={onSubmit}
-            />
+            <View style={styles.viewButtons}>
+                <Button
+                    title="Iniciar Sesión"
+                    containerStyle={styles.btnContainer}
+                    buttonStyle={styles.btnRegister}
+                    onPress={onSubmit}
+                />
+                <Button
+                    buttonStyle={styles.btnGoogle}
+                    containerStyle={styles.btnContainer}
+                    icon={
+                        <Icon
+                            name="google"
+                            type="material-community"
+                            marginRight={10}
+                            size={20}
+                            color="#FFF"
+                        />
+                    }
+                    title="Iniciar sesión con Google"
+                    onPress={googleSignInAsync}
+                />
+            </View>
             <Loading isVisible={loading} text="Iniciando Sesión..."/>
         </View>
     )
@@ -115,15 +197,21 @@ const styles = StyleSheet.create({
     inputForm: {
         width: "100%"
     },
-    btnContainerRegister: {
-        marginTop: 20,
+    btnContainer: {
+        marginTop: 10,
         width: "95%",
         alignSelf: "center",
     },
     btnRegister: {
-        backgroundColor: "#442484"
+        backgroundColor: "#442484",
     },
     icon: {
         color: "#c1c1c1"
+    },
+    btnGoogle: {
+        backgroundColor: "#EA4335",
+    },
+    viewButtons: {
+        width: "95%"
     }
 })
